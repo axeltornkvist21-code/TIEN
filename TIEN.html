@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Golden Text — Dark Indigo Page</title>
+<style>
+  :root{
+    --bg:#0C1922;
+    --gold:#DAA520;
+    --font-size:20px; /* default, can be changed in admin */
+  }
+  html,body{
+    height:100%;
+    margin:0;
+    background:var(--bg);
+    color:var(--gold);
+    font-family:"Times New Roman", Times, serif;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+  .wrap{
+    min-height:100%;
+    box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding:4vh 5vw;
+    text-align:center;
+  }
+  #content{
+    width:100%;
+    max-width:900px;
+    font-size:var(--font-size);
+    line-height:1.6;
+    word-wrap:break-word;
+    margin:0 auto 40px auto;
+  }
+  #content img{
+    display:block;
+    margin:18px auto;
+    max-width:100%;
+    height:auto;
+  }
+  a{
+    color:var(--gold);
+    text-decoration:underline;
+  }
+
+  /* Admin button */
+  .admin-btn{
+    position:fixed;
+    right:18px;
+    bottom:18px;
+    background:transparent;
+    color:var(--gold);
+    border:1px solid rgba(218,165,32,0.25);
+    padding:10px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    backdrop-filter: blur(4px);
+  }
+
+  /* Modal */
+  .modal-backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.5);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:999;
+  }
+  .modal{
+    background: #071117; /* slightly darker */
+    border:1px solid rgba(218,165,32,0.15);
+    color:var(--gold);
+    width:92%;
+    max-width:880px;
+    padding:18px;
+    border-radius:10px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.6);
+    max-height:90vh;
+    overflow:auto;
+  }
+  label{display:block;margin:10px 0 6px;font-weight:600;}
+  input[type="text"], input[type="password"], textarea, input[type="url"]{
+    width:100%;
+    box-sizing:border-box;
+    padding:8px;
+    border-radius:6px;
+    border:1px solid rgba(218,165,32,0.12);
+    background:transparent;
+    color:var(--gold);
+    font-family:inherit;
+  }
+  textarea{min-height:180px; resize:vertical;}
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+  .small{width:140px;}
+  .controls{margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;}
+  button.action{
+    background:transparent;
+    color:var(--gold);
+    border:1px solid rgba(218,165,32,0.25);
+    padding:8px 12px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .note{font-size:13px; opacity:0.9; margin-top:8px;}
+  footer{font-size:13px; opacity:0.9; margin-top:30px;}
+  @media (max-width:520px){
+    :root{--font-size:18px;}
+  }
+
+#content p {
+  margin: 0 0 0.5em 0; /* single spaced paragraph separation */
+  line-height: 1.0;     /* tighter line height */
+}
+#htmlSource {
+  min-height: 300px;
+  max-height: 60vh; /* so it never exceeds viewport */
+  overflow: auto;
+  resize: vertical;
+  white-space: pre-wrap;
+}
+
+#content img {
+  width: 6cm;
+  height: 6cm;
+  object-fit: contain;
+}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <main id="content" aria-live="polite">
+      <!-- Content is injected here -->
+    </main>
+
+    <footer>
+      <!-- Optional footer text, editable by admin -->
+    </footer>
+  </div>
+
+  <!-- admin login / editor button -->
+  <button class="admin-btn" id="openAdminBtn" title="Admin login">Admin</button>
+
+  <!-- Modal for Admin Login & Editor -->
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" id="modal">
+      <div id="loginArea">
+        <h2 style="margin:0 0 8px 0;">Admin Login</h2>
+        <label for="pw">Password</label>
+        <input id="pw" type="password" placeholder="Enter admin password" />
+        <div class="controls">
+          <button class="action" id="loginBtn">Log in</button>
+          <button class="action" id="closeModalBtn">Close</button>
+        </div>
+        <p class="note">Default password changed.</p>
+      </div>
+
+      <div id="editorArea" style="display:none;">
+        <h2 style="margin:0 0 8px 0;">Admin Editor</h2>
+
+        <label for="htmlSource">Page HTML (you can add text, links &amp; images here). Use the toolbar to insert images/links.</label>
+        <textarea id="htmlSource" spellcheck="false"></textarea>
+
+        <div class="row" style="margin-top:10px;">
+          <div>
+            <label for="addImage">Insert image (will embed as data URL)</label>
+            <input id="addImage" type="file" accept="image/*" />
+          </div>
+          <div style="min-width:180px;">
+            <label for="addLinkText">Add link text</label>
+            <input id="addLinkText" type="text" placeholder="Visible text for link" />
+            <label for="addLinkURL" style="margin-top:6px;">Link URL</label>
+            <input id="addLinkURL" type="url" placeholder="https://example.com" />
+          </div>
+          <div style="flex:1;">
+            <label for="fontSizeRange">Font size (px)</label>
+            <input id="fontSizeRange" type="range" min="12" max="48" value="20" />
+            <div class="note">Value: <span id="fontSizeValue">20</span>px</div>
+          </div>
+        </div>
+
+        <div class="controls" style="margin-top:12px;">
+          <button class="action" id="insertImageBtn">Insert image at cursor</button>
+          <button class="action" id="insertLinkBtn">Insert link at cursor</button>
+          <button class="action" id="saveBtn">Save changes</button>
+          <button class="action" id="logoutBtn">Log out</button>
+          <button class="action" id="resetBtn" title="Reset to blank/default">Reset</button>
+        </div>
+
+        <p class="note">Tips: write plain HTML inside the editor for formatting (paragraphs, &lt;br&gt;, &lt;a&gt; links, &lt;img&gt; tags). Images added via the file input are embedded so the page remains a single file in the browser.</p>
+      </div>
+    </div>
+  </div>
+
+<script>
+const defaultAdminPassword = "Pa6ry81x!"; // changed password
+
+const contentEl = document.getElementById('content');
+const footerEl = document.querySelector('footer');
+const openAdminBtn = document.getElementById('openAdminBtn');
+const modalBackdrop = document.getElementById('modalBackdrop');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const loginArea = document.getElementById('loginArea');
+const editorArea = document.getElementById('editorArea');
+const loginBtn = document.getElementById('loginBtn');
+const pwInput = document.getElementById('pw');
+
+const htmlSource = document.getElementById('htmlSource');
+const addImage = document.getElementById('addImage');
+const insertImageBtn = document.getElementById('insertImageBtn');
+const addLinkText = document.getElementById('addLinkText');
+const addLinkURL = document.getElementById('addLinkURL');
+const insertLinkBtn = document.getElementById('insertLinkBtn');
+const saveBtn = document.getElementById('saveBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const resetBtn = document.getElementById('resetBtn');
+const fontSizeRange = document.getElementById('fontSizeRange');
+const fontSizeValue = document.getElementById('fontSizeValue');
+
+const STORAGE_KEY_CONTENT = 'golden_page_content_v1';
+const STORAGE_KEY_FONT = 'golden_page_fontsize_v1';
+const STORAGE_KEY_FOOTER = 'golden_page_footer_v1';
+
+const DEFAULT_CONTENT = `
+  <h1>Welcome</h1>
+  <p>Replace this text in admin. This page uses Times New Roman, golden text color (#DAA520), and a dark indigo background (#0C1922).</p>
+  <p>You can add images and links using the admin panel.</p>
+`;
+
+function loadFromStorage(){
+  const saved = localStorage.getItem(STORAGE_KEY_CONTENT);
+  const font = localStorage.getItem(STORAGE_KEY_FONT);
+  const footer = localStorage.getItem(STORAGE_KEY_FOOTER);
+  contentEl.innerHTML = saved || DEFAULT_CONTENT;
+  footerEl.innerHTML = footer || '';
+  const fs = font || getComputedStyle(document.documentElement).getPropertyValue('--font-size').trim().replace('px','') || 20;
+  document.documentElement.style.setProperty('--font-size', fs + 'px');
+  fontSizeRange.value = parseInt(fs,10);
+  fontSizeValue.textContent = fontSizeRange.value;
+}
+loadFromStorage();
+
+openAdminBtn.addEventListener('click', ()=> {
+  modalBackdrop.style.display = 'flex';
+  modalBackdrop.setAttribute('aria-hidden','false');
+  pwInput.value = '';
+  pwInput.focus();
+  loginArea.style.display = 'block';
+  editorArea.style.display = 'none';
+});
+
+closeModalBtn.addEventListener('click', closeModal);
+modalBackdrop.addEventListener('click', (e)=>{
+  if(e.target === modalBackdrop) closeModal();
+});
+function closeModal(){
+  modalBackdrop.style.display = 'none';
+  modalBackdrop.setAttribute('aria-hidden','true');
+}
+
+loginBtn.addEventListener('click', attemptLogin);
+pwInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') attemptLogin(); });
+
+function attemptLogin(){
+  const input = pwInput.value || '';
+  if(input === defaultAdminPassword){
+    showEditor();
+  } else {
+    alert('Incorrect password');
+  }
+}
+
+function showEditor(){
+  loginArea.style.display = 'none';
+  editorArea.style.display = 'block';
+  htmlSource.value = localStorage.getItem(STORAGE_KEY_CONTENT) || DEFAULT_CONTENT;
+  fontSizeRange.value = parseInt((localStorage.getItem(STORAGE_KEY_FONT) || getComputedStyle(document.documentElement).getPropertyValue('--font-size').trim().replace('px','') ),10);
+  fontSizeValue.textContent = fontSizeRange.value;
+  footerEl.innerHTML = localStorage.getItem(STORAGE_KEY_FOOTER) || '';
+}
+
+insertImageBtn.addEventListener('click', ()=> {
+  const file = addImage.files[0];
+  if(!file){
+    alert('Choose an image file first.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const dataUrl = e.target.result;
+    insertAtCursor(htmlSource, `<img src="${dataUrl}" alt="${escapeHtml(file.name)}" />\n`);
+  };
+  reader.readAsDataURL(file);
+});
+
+insertLinkBtn.addEventListener('click', ()=>{
+  const text = addLinkText.value.trim();
+  const url = addLinkURL.value.trim();
+  if(!text || !url){ alert('Provide both link text and URL.'); return; }
+  const linkHtml = `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(text)}</a>`;
+  insertAtCursor(htmlSource, linkHtml);
+});
+
+saveBtn.addEventListener('click', ()=> {
+  const html = htmlSource.value;
+  localStorage.setItem(STORAGE_KEY_CONTENT, html);
+  localStorage.setItem(STORAGE_KEY_FONT, fontSizeRange.value + 'px');
+  loadFromStorage();
+  alert('Saved. Changes visible to visitors.');
+});
+
+logoutBtn.addEventListener('click', ()=> {
+  editorArea.style.display = 'none';
+  loginArea.style.display = 'block';
+  pwInput.value = '';
+  closeModal();
+});
+
+resetBtn.addEventListener('click', ()=> {
+  if(!confirm('Reset page content to default and clear saved content?')) return;
+  localStorage.removeItem(STORAGE_KEY_CONTENT);
+  localStorage.removeItem(STORAGE_KEY_FONT);
+  localStorage.removeItem(STORAGE_KEY_FOOTER);
+  loadFromStorage();
+  htmlSource.value = DEFAULT_CONTENT;
+  alert('Reset done.');
+});
+
+fontSizeRange.addEventListener('input', ()=> {
+  const v = fontSizeRange.value;
+  fontSizeValue.textContent = v;
+  document.documentElement.style.setProperty('--font-size', v + 'px');
+});
+
+function insertAtCursor(textarea, text) {
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const before = textarea.value.substring(0, start);
+  const after = textarea.value.substring(end);
+  textarea.value = before + text + after;
+  const pos = start + text.length;
+  textarea.selectionStart = textarea.selectionEnd = pos;
+  textarea.focus();
+}
+
+function escapeHtml(str){
+  return (str+'').replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+}
+
+document.addEventListener('keydown', (e)=> {
+  if(e.key === 'Escape') {
+    if(modalBackdrop.style.display === 'flex') closeModal();
+  }
+});
+
+loadFromStorage();
+</script>
+</body>
+</html>
